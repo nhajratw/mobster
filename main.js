@@ -1,5 +1,5 @@
 const electron = require('electron')
-const {ipcMain, globalShortcut, app, Tray, BrowserWindow} = require('electron')
+const {autoUpdater, ipcMain, globalShortcut, app, Tray, BrowserWindow, dialog} = require('electron')
 
 const path = require('path')
 const url = require('url')
@@ -18,6 +18,40 @@ const timerHeight = 130
 const timerWidth = 150
 
 const onMac = /^darwin/.test(process.platform)
+
+if (process.platform === 'win32') {
+  // if (require('electron-squirrel-startup')) {
+  //   app.quit()
+  //   return;
+  // }
+  let cmd = process.argv[1]
+  log.info(`cmd = ${cmd}`)
+  let target = path.basename(process.execPath);
+
+  if (cmd === '--squirrel-install' || cmd === '--squirrel-updated') {
+    log.info('@@@@if1@@@@')
+      app.quit()
+      return true
+  }
+
+  if (cmd === '--squirrel-uninstall') {
+    log.info('@@@@if2@@@@')
+      app.quit()
+      return true
+  }
+
+  if (cmd === '--squirrel-obsolete') {
+    log.info('@@@@if3@@@@')
+      app.quit()
+      return true
+  }
+
+  if (cmd === '--squirrel-updated') {
+    log.info('@@@@if4@@@@')
+      app.quit()
+      return true
+  }
+}
 
 function positionWindowLeft(window) {
   let {width, height} = electron.screen.getPrimaryDisplay().workAreaSize
@@ -85,8 +119,6 @@ function createWindow () {
     slashes: true
   }))
 
-  mainWindow.center()
-
   ipcMain.on('start-timer', (event, flags) => {
     startTimer(flags)
     mainWindow.hide()
@@ -137,6 +169,33 @@ const createTray = () => {
   tray.on('click', onClickTrayIcon)
 }
 
+function checkForUpdates() {
+  // http://mobster-releases.herokuapp.com/update/win32/0.0.2
+  const {version} = require('./package')
+  console.log('checking for updates... Current version is: ', version)
+  // dialog.showErrorBox("Checking for updates...", `current version is: ${version}`)
+  const platform = process.platform === 'darwin' ? 'osx' : process.platform
+  const FEED_URL = `http://mobster-releases.herokuapp.com/update/${platform}`
+  autoUpdater.on('error', (err, msg) => {
+    log.info('Error fetching updates', msg + ' (' + err.stack + ')')
+    dialog.showErrorBox("Error fetching updates", `Message: ${msg}`)
+  })
+
+  autoUpdater.setFeedURL(`${FEED_URL}/${version}`)
+
+  setTimeout(() => {
+    autoUpdater.checkForUpdates();
+  }, 10000);
+
+  // autoUpdater.checkForUpdates()
+
+  const onupdate = (ev, releaseNotes, releaseName) => {
+     log.info('update available', {releaseNotes, releaseName})
+   }
+
+   autoUpdater.on('update-downloaded', onupdate)
+}
+
 function createWindows() {
   createWindow()
   createTray()
@@ -145,6 +204,8 @@ function createWindows() {
       toggleMainWindow()
     }
   })
+  checkForUpdates()
+  mainWindow.openDevTools()
 }
 
 // This method will be called when Electron has finished
