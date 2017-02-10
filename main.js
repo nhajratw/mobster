@@ -1,5 +1,6 @@
 const electron = require('electron')
-const {ipcMain, globalShortcut, app, Tray, BrowserWindow, dialog, autoUpdater} = require('electron')
+const {ipcMain, globalShortcut, app, Tray, BrowserWindow, dialog} = require('electron')
+const autoUpdater = require('electron-updater').autoUpdater
 
 const path = require('path')
 const url = require('url')
@@ -179,7 +180,8 @@ function createWindows() {
   });
 
   autoUpdater.on('update-available', () => {
-      showDialog('update-available')
+      showDialog('update-available... Imma let you finish... but first, Imma install it once you push okay ;-)')
+      autoUpdater.quitAndInstall()
   });
 
   autoUpdater.on('update-downloaded', () => {
