@@ -180,12 +180,12 @@ function createWindows() {
   });
 
   autoUpdater.on('update-available', () => {
-      showDialog('update-available... Imma let you finish... but first, Imma install it once you push okay ;-)')
-      autoUpdater.quitAndInstall()
+      showDialog('update-available')
   });
 
   autoUpdater.on('update-downloaded', () => {
-      showDialog('update-downloaded')
+      showDialog('update-downloaded... Imma let you finish... but first, Imma install it once you push okay ;-)')
+      autoUpdater.quitAndInstall()
   });
 
   autoUpdater.on('update-not-available', () => {
