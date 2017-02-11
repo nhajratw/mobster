@@ -479,14 +479,15 @@ updateAvailableView : Maybe String -> Html Msg
 updateAvailableView availableUpdateVersion =
     case availableUpdateVersion of
         Nothing ->
-            div [ Attr.class "alert alert-success" ] [ text "Version nothing is available. ", a [ onClick QuitAndInstall, Attr.href "#" ] [ text "Update now" ] ]
+            div [] []
 
         Just version ->
-            div [ Attr.class "alert alert-success" ] [ text ("Version " ++ version ++ " is available. "), a [ onClick QuitAndInstall, Attr.href "#", Attr.class "alert-link" ] [ text "Update now" ] ]
-
-
-
--- <div class="alert alert-info" role="alert">...</div>
+            div [ Attr.class "alert alert-success" ]
+                [ span [ Attr.class "glyphicon glyphicon-flag", class [ BufferRight ] ] []
+                , text ("A new version is downloaded and ready to install. ")
+                , a [ onClick QuitAndInstall, Attr.href "#", Attr.class "alert-link" ] [ text "Update now" ]
+                , text "."
+                ]
 
 
 view : Model -> Html Msg

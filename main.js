@@ -78,12 +78,9 @@ function createWindow () {
     icon: `${assetsDirectory}/icon.ico`
   })
   mainWindow.maximize()
-  // mainWindow.setResizable(false)
 
   electron.screen.on('display-metrics-changed', function () {
-    // mainWindow.setResizable(true)
     mainWindow.maximize()
-    // mainWindow.setResizable(false)
   })
 
   mainWindow.loadURL(url.format({
@@ -91,8 +88,6 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
-
-  mainWindow.center()
 
   ipcMain.on('start-timer', (event, flags) => {
     startTimer(flags)
@@ -149,56 +144,17 @@ const createTray = () => {
   tray.on('click', onClickTrayIcon)
 }
 
-function createWindows() {
+function onReady() {
   createWindow()
   createTray()
-  globalShortcut.register('CommandOrControl+Shift+K', () => {
-    if (timerWindow) {
-      let dialogActionIndex = dialog.showMessageBox({
-        type: 'warning',
-        buttons: ['Stop timer', 'Keep it running'],
-        message: 'Stop the timer?',
-        cancelId: 1,
-      })
-      if (dialogActionIndex !== 1) {
-        closeTimer()
-        showSetupAgain(mainWindow)
-      }
-    } else {
-      toggleMainWindow()
-    }
-  })
-  globalShortcut.register('CommandOrControl+Shift+;', () => {
-    copyActiveMobsters()
-  })
-  autoUpdater.logger = log;
-  autoUpdater.on('checking-for-update', () => {
-      log.info('checking-for-update')
-  });
-
-  autoUpdater.on('update-available', () => {
-      log.info('update-available')
-  });
-
-  autoUpdater.on('update-downloaded', (versionInfo) => {
-    log.info('update-downloaded... Imma let you finish... but first, Imma install it once you push okay ;-)')
-    log.info('update-available: ', versionInfo)
-    mainWindow.webContents.send('update-downloaded', "0.0.5 maybe?")
-  });
-
-  autoUpdater.on('update-not-available', () => {
-    log.info('update-not-available')
-  });
-  autoUpdater.checkForUpdates()
-}
-function copyActiveMobsters() {
-  mainWindow.webContents.send('copy-active-mobsters')
+  registerShortcuts()
+  setupAutoUpdater()
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindows)
+app.on('ready', onReady)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -217,5 +173,48 @@ app.on('activate', function () {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+function setupAutoUpdater() {
+  autoUpdater.logger = log;
+  autoUpdater.on('checking-for-update', () => {
+      log.info('checking-for-update')
+  });
+
+  autoUpdater.on('update-available', () => {
+      log.info('update-available')
+  });
+
+  autoUpdater.on('update-downloaded', (versionInfo) => {
+    log.info('update-downloaded... Imma let you finish... but first, Imma install it once you push okay ;-)')
+    log.info('update-available: ', versionInfo)
+    mainWindow.webContents.send('update-downloaded', versionInfo)
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    log.info('update-not-available')
+  });
+  autoUpdater.checkForUpdates()
+}
+
+function registerShortcuts() {
+  globalShortcut.register('CommandOrControl+Shift+K', () => {
+    if (timerWindow) {
+      let dialogActionIndex = dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Stop timer', 'Keep it running'],
+        message: 'Stop the timer?',
+        cancelId: 1,
+      })
+      if (dialogActionIndex !== 1) {
+        closeTimer()
+        showSetupAgain(mainWindow)
+      }
+    } else {
+      toggleMainWindow()
+    }
+  })
+  globalShortcut.register('CommandOrControl+Shift+;', copyActiveMobsters)
+}
+
+function copyActiveMobsters() {
+  mainWindow.webContents.send('copy-active-mobsters')
+}

@@ -125,6 +125,10 @@
       document.getElementById(id).select()
     })
 
+    setup.ports.quitAndInstall.subscribe(function() {
+      ipcRenderer.send('quit-and-install')
+    })
+
     setup.ports.copyActiveMobsters.subscribe(function(activeMobsters) {
       clipboard.writeText(activeMobsters)
     })
@@ -133,13 +137,9 @@
       window.localStorage.setItem('setup', JSON.stringify(setup))
     })
 
-    setup.ports.quitAndInstall.subscribe(function() {
-      ipcRenderer.send('quit-and-install')
-    })
-
-
     ipcRenderer.on('update-downloaded', function (event, updatedVersion) {
-      setup.ports.updateDownloaded.send(updatedVersion)
+      console.log('on update-downloaded. updatedVersion = ', updatedVersion)
+      setup.ports.updateDownloaded.send("Not a real version...")
     })
 
     ipcRenderer.on('timer-done', function (event, elapsedSeconds) {
