@@ -173,21 +173,21 @@ function createWindows() {
   })
   autoUpdater.logger = log;
   autoUpdater.on('checking-for-update', () => {
-      log('checking-for-update')
+      log.info('checking-for-update')
   });
 
   autoUpdater.on('update-available', () => {
-      log('update-available')
+      log.info('update-available')
   });
 
   autoUpdater.on('update-downloaded', (versionInfo) => {
-    log('update-downloaded... Imma let you finish... but first, Imma install it once you push okay ;-)')
-    log('update-available: ', versionInfo)
+    log.info('update-downloaded... Imma let you finish... but first, Imma install it once you push okay ;-)')
+    log.info('update-available: ', versionInfo)
     mainWindow.webContents.send('update-downloaded', "0.0.5 maybe?")
   });
 
   autoUpdater.on('update-not-available', () => {
-    log('update-not-available')
+    log.info('update-not-available')
   });
   autoUpdater.checkForUpdates()
 }
