@@ -19,6 +19,7 @@ const timerHeight = 130
 const timerWidth = 150
 
 const onMac = /^darwin/.test(process.platform)
+const isDev = require('electron-is-dev')
 
 function positionWindowLeft(window) {
   let {width, height} = electron.screen.getPrimaryDisplay().workAreaSize
@@ -148,7 +149,9 @@ function onReady() {
   createWindow()
   createTray()
   registerShortcuts()
-  setupAutoUpdater()
+  if (!onMac && !isDev) { // don't run autoUpdater on mac until the app is signed
+    setupAutoUpdater()
+  }
 }
 
 // This method will be called when Electron has finished
