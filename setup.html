@@ -133,6 +133,15 @@
       window.localStorage.setItem('setup', JSON.stringify(setup))
     })
 
+    setup.ports.quitAndInstall.subscribe(function() {
+      ipcRenderer.send('quit-and-install')
+    })
+
+
+    ipcRenderer.on('update-downloaded', function (event, updatedVersion) {
+      setup.ports.updateDownloaded.send(updatedVersion)
+    })
+
     ipcRenderer.on('timer-done', function (event, elapsedSeconds) {
       setup.ports.timeElapsed.send(elapsedSeconds)
     })

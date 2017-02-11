@@ -78,12 +78,12 @@ function createWindow () {
     icon: `${assetsDirectory}/icon.ico`
   })
   mainWindow.maximize()
-  mainWindow.setResizable(false)
+  // mainWindow.setResizable(false)
 
   electron.screen.on('display-metrics-changed', function () {
-    mainWindow.setResizable(true)
+    // mainWindow.setResizable(true)
     mainWindow.maximize()
-    mainWindow.setResizable(false)
+    // mainWindow.setResizable(false)
   })
 
   mainWindow.loadURL(url.format({
@@ -107,6 +107,10 @@ function createWindow () {
 
   ipcMain.on('quit', (event) => {
     app.quit()
+  })
+
+  ipcMain.on('quit-and-install', () => {
+    autoUpdater.quitAndInstall()
   })
 
   // Emitted when the window is closed.
@@ -145,13 +149,6 @@ const createTray = () => {
   tray.on('click', onClickTrayIcon)
 }
 
-function showDialog(message) {
-  dialog.showMessageBox({
-        type: 'info',
-        message: message
-      })
-}
-
 function createWindows() {
   createWindow()
   createTray()
@@ -176,22 +173,22 @@ function createWindows() {
   })
   autoUpdater.logger = log;
   autoUpdater.on('checking-for-update', () => {
-      showDialog('checking-for-update')
+      log('checking-for-update')
   });
 
   autoUpdater.on('update-available', () => {
-      showDialog('update-available')
+      log('update-available')
   });
 
-  autoUpdater.on('update-downloaded', () => {
-      showDialog('update-downloaded... Imma let you finish... but first, Imma install it once you push okay ;-)')
-      autoUpdater.quitAndInstall()
+  autoUpdater.on('update-downloaded', (versionInfo) => {
+    log('update-downloaded... Imma let you finish... but first, Imma install it once you push okay ;-)')
+    log('update-available: ', versionInfo)
+    mainWindow.webContents.send('update-downloaded', "0.0.5 maybe?")
   });
 
   autoUpdater.on('update-not-available', () => {
-      showDialog('update-not-available')
+    log('update-not-available')
   });
-  showDialog('about to search for updates')
   autoUpdater.checkForUpdates()
 }
 function copyActiveMobsters() {
